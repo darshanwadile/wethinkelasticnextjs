@@ -8,23 +8,46 @@ gsap.registerPlugin(ScrollTrigger);
 
 export const Contact = () => {
   useEffect(() => {
-    // Contact section animations
-    const containerContactText = document.querySelector('.container-contact-text');
-    
-    if (containerContactText) {
-      gsap.from('.container-contact-text p', {
-        scrollTrigger: {
-          trigger: '.contact',
-          start: 'top 80%',
-          end: 'top 40%',
-          toggleActions: 'play none none none',
-        },
-        x: 50,
-        stagger: 0.15,
-        duration: 1,
-        ease: 'power2.out',
-      });
-    }
+    if (typeof window === 'undefined') return;
+
+    const setupContactAnimations = () => {
+      try {
+        // Contact section animations
+        const containerContactText = document.querySelector('.container-contact-text');
+        
+        if (containerContactText) {
+          gsap.from('.container-contact-text p', {
+            scrollTrigger: {
+              trigger: '.contact',
+              start: 'top 80%',
+              toggleActions: 'play none none none',
+            },
+            x: 50,
+            stagger: 0.15,
+            duration: 1,
+            ease: 'power2.out',
+          });
+        }
+
+        ScrollTrigger.refresh();
+      } catch (err) {
+        console.log('Contact animation error:', err);
+      }
+    };
+
+    // Wait for DOM to be ready
+    const timer = setTimeout(() => {
+      setupContactAnimations();
+    }, 800);
+
+    // Setup on window load
+    window.addEventListener('load', () => {
+      clearTimeout(timer);
+      setTimeout(() => {
+        setupContactAnimations();
+        ScrollTrigger.refresh();
+      }, 300);
+    });
 
     // Underline animation on hover
     const underlineLinks = document.querySelectorAll('.underline');
@@ -47,7 +70,12 @@ export const Contact = () => {
     });
 
     return () => {
+      clearTimeout(timer);
       ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
+      underlineLinks.forEach((link) => {
+        link.removeEventListener('mouseenter', () => {});
+        link.removeEventListener('mouseleave', () => {});
+      });
     };
   }, []);
 

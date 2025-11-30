@@ -50,13 +50,6 @@ export const Portfolio = () => {
 
     const setupPortfolioAnimations = () => {
       try {
-        // Kill existing triggers to prevent duplicates
-        ScrollTrigger.getAll().forEach((trigger) => {
-          if (trigger.vars.trigger && trigger.vars.trigger.includes('our-projects')) {
-            trigger.kill();
-          }
-        });
-
         // Ribbon rotation animation
         const ribbon = document.querySelector('.ribbon-svg') as HTMLElement;
         if (ribbon) {
@@ -81,12 +74,12 @@ export const Portfolio = () => {
               opacity: 0,
               duration: 1.1,
               ease: 'bounce.out',
-              delay: i * 0.15,
               scrollTrigger: {
                 trigger: project,
                 start: 'top 85%',
                 toggleActions: 'play none none none',
               },
+              delay: i * 0.15,
             });
           });
         }
@@ -107,13 +100,14 @@ export const Portfolio = () => {
           });
         }
 
+        // Refresh ScrollTrigger
         ScrollTrigger.refresh();
       } catch (err) {
         console.log('Portfolio animation error:', err);
       }
     };
 
-    // Wait longer for DOM to be ready
+    // Wait longer for DOM to be ready (for Vercel compatibility)
     const timer = setTimeout(() => {
       setupPortfolioAnimations();
     }, 1000);

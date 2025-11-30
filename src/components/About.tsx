@@ -8,106 +8,128 @@ gsap.registerPlugin(ScrollTrigger);
 
 export const About = () => {
   useEffect(() => {
-    const setupHorizontalScroll = () => {
-      const horizontalScroll = document.querySelector('.horizontal-text-scroll') as HTMLElement;
-      if (!horizontalScroll) return;
+    if (typeof window === 'undefined') return;
 
-      const text = horizontalScroll.querySelector('.text') as HTMLElement;
-      if (!text) return;
+    const setupAboutAnimations = () => {
+      try {
+        // Kill any existing triggers first
+        ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
 
-      gsap.set(text, { willChange: 'transform' });
+        const horizontalScroll = document.querySelector('.horizontal-text-scroll') as HTMLElement;
+        if (!horizontalScroll) return;
 
-      // Calculate the distance for horizontal scroll based on text width
-      const scrollDistance = -(text.scrollWidth - window.innerWidth);
+        const text = horizontalScroll.querySelector('.text') as HTMLElement;
+        if (!text) return;
 
-      // Create animation for the text scroll
-      gsap.to(text, {
-        x: scrollDistance,
-        ease: 'none',
-        scrollTrigger: {
-          trigger: horizontalScroll,
-          start: 'top top',
-          end: () => `+=${horizontalScroll.scrollHeight * 3}`,
-          pin: true,
-          scrub: 1.2,
-          invalidateOnRefresh: true,
-          markers: false,
-        },
-      });
+        gsap.set(text, { willChange: 'transform' });
 
-      // Animate images with parallax
-      const images = text.querySelectorAll('span');
-      images.forEach((img, index) => {
-        gsap.to(img, {
-          x: -60 * (index + 1),
+        // Calculate the distance for horizontal scroll based on text width
+        const scrollDistance = -(text.scrollWidth - window.innerWidth);
+
+        // Create animation for the text scroll
+        gsap.to(text, {
+          x: scrollDistance,
           ease: 'none',
           scrollTrigger: {
             trigger: horizontalScroll,
             start: 'top top',
             end: () => `+=${horizontalScroll.scrollHeight * 3}`,
+            pin: true,
             scrub: 1.2,
+            invalidateOnRefresh: true,
+            onUpdate: (self) => {
+              // Ensure proper rendering
+            },
           },
         });
-      });
+
+        // Animate images with parallax
+        const images = text.querySelectorAll('span');
+        images.forEach((img, index) => {
+          gsap.to(img, {
+            x: -60 * (index + 1),
+            ease: 'none',
+            scrollTrigger: {
+              trigger: horizontalScroll,
+              start: 'top top',
+              end: () => `+=${horizontalScroll.scrollHeight * 3}`,
+              scrub: 1.2,
+            },
+          });
+        });
+
+        // Expertise cards animation
+        const expertiseCards = document.querySelectorAll('.list-horizontal-text li');
+        if (expertiseCards.length > 0) {
+          gsap.from(expertiseCards, {
+            scrollTrigger: {
+              trigger: '.list-horizontal-text',
+              start: 'top 80%',
+              end: 'top 40%',
+              toggleActions: 'play none none none',
+            },
+            x: 100,
+            stagger: 0.15,
+            duration: 1,
+            ease: 'power3.out',
+          });
+        }
+
+        // Logos section - infinite scroll
+        const logosTrack = document.querySelector('.logos-track') as HTMLElement;
+        if (logosTrack) {
+          gsap.to(logosTrack, {
+            x: -logosTrack.scrollWidth / 2,
+            duration: 20,
+            ease: 'none',
+            repeat: -1,
+          });
+        }
+
+        // Logo items entrance animation
+        const logoItems = document.querySelectorAll('.logo-item');
+        if (logoItems.length > 0) {
+          gsap.from(logoItems, {
+            scrollTrigger: {
+              trigger: '#logos',
+              start: 'top 80%',
+              toggleActions: 'play none none none',
+            },
+            scale: 0.5,
+            stagger: 0.05,
+            duration: 0.6,
+            ease: 'back.out(1.7)',
+          });
+        }
+
+        // Refresh ScrollTrigger after all animations are set up
+        ScrollTrigger.refresh();
+      } catch (err) {
+        console.log('About animation error:', err);
+      }
     };
 
-    // Wait for elements to be in DOM
+    // Wait longer for DOM elements to be fully ready, especially on Vercel
     const timer = setTimeout(() => {
-      setupHorizontalScroll();
-    }, 300);
+      setupAboutAnimations();
+    }, 800);
 
+    // Setup after window load event
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        setupAboutAnimations();
+        ScrollTrigger.refresh();
+      }, 300);
+    }, { once: true });
+
+    // Refresh on resize
     const handleResize = () => {
       ScrollTrigger.refresh();
     };
-
-    window.addEventListener('load', setupHorizontalScroll);
     window.addEventListener('resize', handleResize);
-
-    // Expertise cards animation - only animate position, not opacity
-    setTimeout(() => {
-      const expertiseCards = document.querySelectorAll('.list-horizontal-text li');
-      gsap.from(expertiseCards, {
-        scrollTrigger: {
-          trigger: '.list-horizontal-text',
-          start: 'top 80%',
-          end: 'top 40%',
-          toggleActions: 'play none none none',
-        },
-        x: 100,
-        stagger: 0.15,
-        duration: 1,
-        ease: 'power3.out',
-      });
-
-      // Logos section
-      const logosTrack = document.querySelector('.logos-track') as HTMLElement;
-      if (logosTrack) {
-        // Infinite scroll animation for logos
-        gsap.to(logosTrack, {
-          x: -logosTrack.scrollWidth / 2,
-          duration: 20,
-          ease: 'none',
-          repeat: -1,
-        });
-      }
-
-      const logoItems = document.querySelectorAll('.logo-item');
-      gsap.from(logoItems, {
-        scrollTrigger: {
-          trigger: '#logos',
-          start: 'top 80%',
-          toggleActions: 'play none none none',
-        },
-        scale: 0.5,
-        stagger: 0.05,
-        duration: 0.6,
-        ease: 'back.out(1.7)',
-      });
-    }, 200);
 
     return () => {
       clearTimeout(timer);
-      window.removeEventListener('load', setupHorizontalScroll);
       window.removeEventListener('resize', handleResize);
       ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
     };

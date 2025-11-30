@@ -16,11 +16,12 @@ export const Hero = () => {
         // Import and run Splitting.js dynamically
         const Splitting = (await import('splitting')).default;
         
-        // Split the hello text first
-        const helloElement = document.querySelector('#container-hello h2');
-        if (helloElement) {
-          Splitting({ target: helloElement, by: 'chars' });
-        }
+        // Split all elements with data-splitting attribute
+        const elementsToSplit = document.querySelectorAll('[data-splitting]');
+        elementsToSplit.forEach((element) => {
+          const splitType = element.getAttribute('data-splitting') || 'chars';
+          Splitting({ target: element, by: splitType });
+        });
         
         const heroTimeline = gsap.timeline({ delay: 0.3 });
 
@@ -44,13 +45,25 @@ export const Hero = () => {
         }
 
         // Animate hero subtitle lines - slide in from left
-        heroTimeline.from('.text-hello p', {
-          x: -80,
-          opacity: 0,
-          stagger: 0.12,
-          duration: 1.9,
-          ease: 'power3.out',
-        }, 0.4);
+        const textHelloItems = document.querySelectorAll('.text-hello .line');
+        if (textHelloItems.length > 0) {
+          heroTimeline.from(textHelloItems, {
+            x: -80,
+            opacity: 0,
+            stagger: 0.12,
+            duration: 1.9,
+            ease: 'power3.out',
+          }, 0.4);
+        } else {
+          // Fallback if Splitting doesn't create lines
+          heroTimeline.from('.text-hello p', {
+            x: -80,
+            opacity: 0,
+            stagger: 0.12,
+            duration: 1.9,
+            ease: 'power3.out',
+          }, 0.4);
+        }
 
         // Hero parallax effect
         gsap.to('#container-hello', {
@@ -85,8 +98,7 @@ export const Hero = () => {
             scrollTrigger: {
               trigger: '.typoTitle',
               start: 'top 70%',
-              end: 'top 30%',
-              toggleActions: 'play none none reverse',
+              toggleActions: 'play none none none',
             },
             opacity: 0,
             y: 50,
@@ -97,14 +109,27 @@ export const Hero = () => {
         }
 
         // Animate content lines
-        const contentLines = document.querySelectorAll('.content-typo-title p');
+        const contentLines = document.querySelectorAll('.content-typo-title .line');
         if (contentLines.length > 0) {
           gsap.from(contentLines, {
             scrollTrigger: {
               trigger: '.content-typo-title',
               start: 'top 75%',
-              end: 'top 40%',
-              toggleActions: 'play none none reverse',
+              toggleActions: 'play none none none',
+            },
+            x: 50,
+            opacity: 0,
+            stagger: 0.1,
+            duration: 0.8,
+            ease: 'power2.out',
+          });
+        } else {
+          // Fallback if Splitting doesn't create lines
+          gsap.from('.content-typo-title p', {
+            scrollTrigger: {
+              trigger: '.content-typo-title',
+              start: 'top 75%',
+              toggleActions: 'play none none none',
             },
             x: 50,
             opacity: 0,
@@ -122,13 +147,17 @@ export const Hero = () => {
     };
 
     // Wait for Splitting.js to process the text (after DOM ready)
+    // Longer timeout for Vercel compatibility
     const timer = setTimeout(() => {
       triggerHeroAnimations();
-    }, 500);
+    }, 800);
 
     window.addEventListener('load', () => {
       clearTimeout(timer);
-      triggerHeroAnimations();
+      setTimeout(() => {
+        triggerHeroAnimations();
+        ScrollTrigger.refresh();
+      }, 300);
     });
 
     return () => {

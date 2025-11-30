@@ -25,6 +25,14 @@ export default function RootLayout({
         <link rel="preconnect" href="https://use.typekit.net" />
         <link rel="dns-prefetch" href="https://use.typekit.net" />
         
+        {/* Preload critical videos */}
+        <link rel="preload" href="/assets/video-start.mp4" as="video" type="video/mp4" />
+        
+        {/* Preload critical project images */}
+        <link rel="preload" href="/assets/thumbnail-peugeot-ac01e927d1befcd7.webp" as="image" />
+        <link rel="preload" href="/assets/thumbnail-white-coffee-b1aada7092b251dc.webp" as="image" />
+        <link rel="preload" href="/assets/thumbnail-kreme-47f2f7370631b92f.webp" as="image" />
+        
         {/* Load Splitting.js from CDN - only this one is needed here */}
         <script src="https://unpkg.com/splitting/dist/splitting.min.js"></script>
       </head>

@@ -219,9 +219,22 @@ export const Portfolio = () => {
             >
               <figure>
                 {project.type === 'image' ? (
-                  <img src={project.image} alt={project.title} />
+                  <img 
+                    src={project.image} 
+                    alt={project.title}
+                    style={{ display: 'block', width: '100%', height: '100%', objectFit: 'cover' }}
+                    loading="lazy"
+                  />
                 ) : (
-                  <video src={project.video} autoPlay muted loop playsInline></video>
+                  <video 
+                    src={project.video} 
+                    autoPlay 
+                    muted 
+                    loop 
+                    playsInline
+                    preload="auto"
+                    style={{ display: 'block', width: '100%', height: '100%', objectFit: 'cover' }}
+                  ></video>
                 )}
                 <figcaption>
                   <h5>{project.title}</h5>

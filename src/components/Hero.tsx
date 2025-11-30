@@ -11,8 +11,17 @@ export const Hero = () => {
     if (typeof window === 'undefined') return;
 
     // Trigger hero animations after Splitting.js initializes
-    const triggerHeroAnimations = () => {
+    const triggerHeroAnimations = async () => {
       try {
+        // Import and run Splitting.js dynamically
+        const Splitting = (await import('splitting')).default;
+        
+        // Split the hello text first
+        const helloElement = document.querySelector('#container-hello h2');
+        if (helloElement) {
+          Splitting({ target: helloElement, by: 'chars' });
+        }
+        
         const heroTimeline = gsap.timeline({ delay: 0.3 });
 
         // Animate individual characters in "hello" - DRAMATIC ENTRANCE

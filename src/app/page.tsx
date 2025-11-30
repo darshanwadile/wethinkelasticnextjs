@@ -1,18 +1,29 @@
 'use client';
 
-import { useEffect } from 'react';
-import {
-  Navigation,
-  Hero,
-  Portfolio,
-  About,
-  Contact,
-  Footer,
-  LoadingScreen,
-} from '@/components';
+import { useEffect, useState } from 'react';
+import dynamic from 'next/dynamic';
+import { Navigation, Footer } from '@/components';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/dist/ScrollTrigger';
 import { useGsapInit } from '@/hooks/useGsapInit';
+
+// Dynamic imports to prevent hydration mismatch
+const Hero = dynamic(() => import('@/components/Hero').then(mod => ({ default: mod.Hero })), { 
+  ssr: false,
+  loading: () => null 
+});
+const Portfolio = dynamic(() => import('@/components/Portfolio').then(mod => ({ default: mod.Portfolio })), { 
+  ssr: false,
+  loading: () => null 
+});
+const About = dynamic(() => import('@/components/About').then(mod => ({ default: mod.About })), { 
+  ssr: false,
+  loading: () => null 
+});
+const Contact = dynamic(() => import('@/components/Contact').then(mod => ({ default: mod.Contact })), { 
+  ssr: false,
+  loading: () => null 
+});
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -21,11 +32,17 @@ declare global {
 }
 
 export default function Home() {
+  const [mounted, setMounted] = useState(false);
+
   // Initialize GSAP/ScrollTrigger
   useGsapInit();
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || !mounted) return;
 
     // Scroll to top on page load
     window.scrollTo(0, 0);
@@ -48,16 +65,20 @@ export default function Home() {
       window.removeEventListener('load', handleLoad);
       window.removeEventListener('resize', handleResize);
     };
-  }, []);
+  }, [mounted]);
 
   return (
     <main className="w-full overflow-x-hidden">
       {/* <LoadingScreen /> */}
       <Navigation />
-      <Hero />
-      <Portfolio />
-      <About />
-      <Contact />
+      {mounted && (
+        <>
+          <Hero />
+          <Portfolio />
+          <About />
+          <Contact />
+        </>
+      )}
       <Footer />
     </main>
   );

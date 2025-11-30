@@ -46,22 +46,25 @@ const projects = [
 
 export const Portfolio = () => {
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+
     // Small delay to ensure DOM is ready
     const timer = setTimeout(() => {
-      // Ribbon rotation animation
-      const ribbon = document.querySelector('.ribbon-svg') as HTMLElement;
-      if (ribbon) {
-        gsap.to(ribbon, {
-          rotation: 360,
-          scrollTrigger: {
-            trigger: '#our-projects',
-            start: 'top bottom',
-            end: 'bottom top',
-            scrub: 0.5,
-          },
-          ease: 'none',
-        });
-      }
+      try {
+        // Ribbon rotation animation
+        const ribbon = document.querySelector('.ribbon-svg') as HTMLElement;
+        if (ribbon) {
+          gsap.to(ribbon, {
+            rotation: 360,
+            scrollTrigger: {
+              trigger: '#our-projects',
+              start: 'top bottom',
+              end: 'bottom top',
+              scrub: 0.5,
+            },
+            ease: 'none',
+          });
+        }
 
       // Projects diagonal fall-in animation
       const projects = document.querySelectorAll('.diagonal-projects .project');
@@ -99,6 +102,9 @@ export const Portfolio = () => {
       }
 
       ScrollTrigger.refresh();
+      } catch (err) {
+        console.log('Portfolio animation error:', err);
+      }
     }, 200);
 
     // Project hover animations

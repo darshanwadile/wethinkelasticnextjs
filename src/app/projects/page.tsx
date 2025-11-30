@@ -5,7 +5,6 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/dist/ScrollTrigger';
 import { Navigation } from '@/components/Navigation';
 import { Footer } from '@/components/Footer';
-import Splitting from 'splitting';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -49,28 +48,35 @@ const projects = [
 
 export default function ProjectsPage() {
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
     window.scrollTo(0, 0);
 
     // Small delay to ensure DOM is ready
-    const timer = setTimeout(() => {
-      // Heading text animation with Splitting
+    const timer = setTimeout(async () => {
       try {
+        // Dynamically import Splitting
+        const Splitting = (await import('splitting')).default;
+        
+        // Heading text animation with Splitting
         const heading = document.querySelector('.discover-heading');
         if (heading) {
           Splitting({ target: heading, by: 'chars' });
           const chars = document.querySelectorAll('.discover-heading .char');
-          gsap.from(chars, {
-            y: 100,
-            opacity: 0,
-            duration: 0.8,
-            stagger: 0.05,
-            ease: 'power3.out',
-            scrollTrigger: {
-              trigger: '.discover-heading',
-              start: 'top 80%',
-              toggleActions: 'play none none none',
-            },
-          });
+          if (chars.length > 0) {
+            gsap.from(chars, {
+              y: 100,
+              opacity: 0,
+              duration: 0.8,
+              stagger: 0.05,
+              ease: 'power3.out',
+              scrollTrigger: {
+                trigger: '.discover-heading',
+                start: 'top 80%',
+                toggleActions: 'play none none none',
+              },
+            });
+          }
         }
       } catch (err) {
         console.log('Splitting error:', err);

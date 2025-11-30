@@ -10,8 +10,13 @@ export const Hero = () => {
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
+    let hasAnimated = false;
+
     // Trigger hero animations after Splitting.js initializes
     const triggerHeroAnimations = async () => {
+      if (hasAnimated) return; // Prevent duplicate animations
+      hasAnimated = true;
+
       try {
         // Import and run Splitting.js dynamically
         const Splitting = (await import('splitting')).default;
@@ -146,22 +151,27 @@ export const Hero = () => {
       }
     };
 
-    // Wait for Splitting.js to process the text (after DOM ready)
-    // Longer timeout for Vercel compatibility
+    // Wait for loading screen to complete before starting animations
+    const startHeroAnimations = () => {
+      triggerHeroAnimations();
+      ScrollTrigger.refresh();
+    };
+
+    // Listen for loading screen completion event
+    window.addEventListener('loadingScreenComplete', startHeroAnimations);
+
+    // Fallback timeout in case event doesn't fire
     const timer = setTimeout(() => {
       triggerHeroAnimations();
-    }, 800);
+    }, 5000);
 
     window.addEventListener('load', () => {
       clearTimeout(timer);
-      setTimeout(() => {
-        triggerHeroAnimations();
-        ScrollTrigger.refresh();
-      }, 300);
     });
 
     return () => {
       clearTimeout(timer);
+      window.removeEventListener('loadingScreenComplete', startHeroAnimations);
       ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
     };
   }, []);

@@ -63,6 +63,8 @@ export const LoadingScreen = () => {
             loadingScreen.style.display = 'none';
             loadingScreen.style.pointerEvents = 'none';
           }
+          // Dispatch custom event when loading screen animation completes
+          window.dispatchEvent(new CustomEvent('loadingScreenComplete'));
         },
       });
     };

@@ -227,14 +227,16 @@ export const Portfolio = () => {
                   />
                 ) : (
                   <video 
-                    src={project.video} 
                     autoPlay 
                     muted 
                     loop 
                     playsInline
                     preload="auto"
                     style={{ display: 'block', width: '100%', height: '100%', objectFit: 'cover' }}
-                  ></video>
+                  >
+                    <source src={project.video} type="video/mp4" />
+                    Your browser does not support the video tag.
+                  </video>
                 )}
                 <figcaption>
                   <h5>{project.title}</h5>

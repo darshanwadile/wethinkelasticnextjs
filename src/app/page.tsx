@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
-import { Navigation, Footer } from '@/components';
+import { Navigation, Footer, LoadingScreen } from '@/components';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/dist/ScrollTrigger';
 import { useGsapInit } from '@/hooks/useGsapInit';
@@ -69,7 +69,7 @@ export default function Home() {
 
   return (
     <main className="w-full overflow-x-hidden">
-      {/* <LoadingScreen /> */}
+      <LoadingScreen />
       <Navigation />
       {mounted && (
         <>

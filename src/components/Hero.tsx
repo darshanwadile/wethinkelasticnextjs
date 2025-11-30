@@ -185,14 +185,16 @@ export const Hero = () => {
       <div id="container-video-start">
         <video
           className="hero-video"
-          src="/assets/video-start.mp4"
           autoPlay
           muted
           loop
           playsInline
           preload="auto"
-          style={{ display: 'block', width: '100%', height: '100%' }}
-        ></video>
+          style={{ display: 'block', width: '100%', height: '100%', objectFit: 'cover' }}
+        >
+          <source src="/assets/video-start.mp4" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
       </div>
 
       {/* Typography Title Section */}

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import gsap from 'gsap';
 
 const loadingImages = [
@@ -18,35 +18,43 @@ const loadingImages = [
 ];
 
 export const LoadingScreen = () => {
+  const [isClient, setIsClient] = useState(false);
+
   useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isClient) return;
+
     const loadingScreen = document.getElementById('loadingScreen');
+    if (!loadingScreen) return;
+
     const loaderImages = document.querySelectorAll('.container-loader-image');
-
-    // Animate loading sequence
-    function animateLoadingSequence() {
-      const timeline = gsap.timeline();
-
-      loaderImages.forEach((img, index) => {
-        timeline.to(img, {
-          opacity: 1,
-          duration: 0.08,
-          ease: 'power2.inOut',
-        }, index * 0.3);
-
-        timeline.to(img, {
-          opacity: 0,
-          duration: 0.08,
-          ease: 'power2.inOut',
-        }, (index * 0.3) + 0.15);
-      });
-
-      return timeline;
+    if (loaderImages.length === 0) {
+      console.warn('No loader images found');
+      return;
     }
 
-    const handlePageLoad = () => {
-      const loadingTimeline = animateLoadingSequence();
+    // Start animation immediately
+    const timeline = gsap.timeline();
 
-      loadingTimeline.to(loadingScreen, {
+    loaderImages.forEach((img, index) => {
+      timeline.to(img, {
+        opacity: 1,
+        duration: 0.08,
+        ease: 'power2.inOut',
+      }, index * 0.3);
+
+      timeline.to(img, {
+        opacity: 0,
+        duration: 0.08,
+        ease: 'power2.inOut',
+      }, (index * 0.3) + 0.15);
+    });
+
+    const handlePageLoad = () => {
+      timeline.to(loadingScreen, {
         y: '-100%',
         duration: 1.2,
         ease: 'power3.inOut',
@@ -59,12 +67,21 @@ export const LoadingScreen = () => {
       });
     };
 
-    window.addEventListener('load', handlePageLoad);
+    // If page is already loaded, start animation immediately
+    if (document.readyState === 'complete') {
+      handlePageLoad();
+    } else {
+      window.addEventListener('load', handlePageLoad);
+    }
 
     return () => {
       window.removeEventListener('load', handlePageLoad);
     };
-  }, []);
+  }, [isClient]);
+
+  if (!isClient) {
+    return null;
+  }
 
   return (
     <div id="loadingScreen" className="loading-screen">
@@ -73,7 +90,7 @@ export const LoadingScreen = () => {
           <div className="transition-inner">
             {loadingImages.map((src, index) => (
               <div key={index} className="container-loader-image">
-                <img src={src} alt="We Think Elastic" />
+                <img src={src} alt="We Think Elastic" loading="eager" />
               </div>
             ))}
           </div>

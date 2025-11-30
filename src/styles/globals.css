@@ -6,6 +6,19 @@
 @tailwind utilities;
 
 /* ================================
+   FONT LOADING
+   ================================ */
+/* Ensure fonts are loaded before rendering */
+html.wf-loading {
+  visibility: hidden;
+}
+
+html.wf-active,
+html.wf-inactive {
+  visibility: visible;
+}
+
+/* ================================
    CSS VARIABLES & ROOT STYLES
    ================================ */
 :root {

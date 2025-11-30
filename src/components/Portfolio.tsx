@@ -48,9 +48,15 @@ export const Portfolio = () => {
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    // Small delay to ensure DOM is ready
-    const timer = setTimeout(() => {
+    const setupPortfolioAnimations = () => {
       try {
+        // Kill existing triggers to prevent duplicates
+        ScrollTrigger.getAll().forEach((trigger) => {
+          if (trigger.vars.trigger && trigger.vars.trigger.includes('our-projects')) {
+            trigger.kill();
+          }
+        });
+
         // Ribbon rotation animation
         const ribbon = document.querySelector('.ribbon-svg') as HTMLElement;
         if (ribbon) {
@@ -66,46 +72,59 @@ export const Portfolio = () => {
           });
         }
 
-      // Projects diagonal fall-in animation
-      const projects = document.querySelectorAll('.diagonal-projects .project');
-      if (projects.length > 0) {
-        projects.forEach((project: any, i: number) => {
-          gsap.from(project, {
-            y: -200,
+        // Projects diagonal fall-in animation
+        const projects = document.querySelectorAll('.diagonal-projects .project');
+        if (projects.length > 0) {
+          projects.forEach((project: any, i: number) => {
+            gsap.from(project, {
+              y: -200,
+              opacity: 0,
+              duration: 1.1,
+              ease: 'bounce.out',
+              delay: i * 0.15,
+              scrollTrigger: {
+                trigger: project,
+                start: 'top 85%',
+                toggleActions: 'play none none none',
+              },
+            });
+          });
+        }
+
+        // CTA button animation
+        const ctaButton = document.querySelector('.cta-oval') as HTMLElement;
+        if (ctaButton) {
+          gsap.from(ctaButton, {
+            scale: 0.8,
             opacity: 0,
-            duration: 1.1,
-            ease: 'bounce.out',
-            delay: i * 0.15,
+            duration: 0.8,
+            ease: 'back.out(1.7)',
             scrollTrigger: {
-              trigger: project,
-              start: 'top 85%',
+              trigger: ctaButton,
+              start: 'top 90%',
               toggleActions: 'play none none none',
             },
           });
-        });
-      }
+        }
 
-      // CTA button animation
-      const ctaButton = document.querySelector('.cta-oval') as HTMLElement;
-      if (ctaButton) {
-        gsap.from(ctaButton, {
-          scale: 0.8,
-          opacity: 0,
-          duration: 0.8,
-          ease: 'back.out(1.7)',
-          scrollTrigger: {
-            trigger: ctaButton,
-            start: 'top 90%',
-            toggleActions: 'play none none none',
-          },
-        });
-      }
-
-      ScrollTrigger.refresh();
+        ScrollTrigger.refresh();
       } catch (err) {
         console.log('Portfolio animation error:', err);
       }
-    }, 200);
+    };
+
+    // Wait longer for DOM to be ready
+    const timer = setTimeout(() => {
+      setupPortfolioAnimations();
+    }, 1000);
+
+    // Setup after window load
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        setupPortfolioAnimations();
+        ScrollTrigger.refresh();
+      }, 300);
+    }, { once: true });
 
     // Project hover animations
     const projectItems = document.querySelectorAll('.diagonal-projects .project');

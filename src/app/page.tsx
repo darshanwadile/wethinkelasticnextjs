@@ -12,6 +12,7 @@ import {
 } from '@/components';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/dist/ScrollTrigger';
+import { useGsapInit } from '@/hooks/useGsapInit';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -20,44 +21,48 @@ declare global {
 }
 
 export default function Home() {
+  // Initialize GSAP/ScrollTrigger
+  useGsapInit();
+
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
     // Scroll to top on page load
     window.scrollTo(0, 0);
 
-    // Initialize Splitting.js for text animations after a short delay
+    // Initialize Splitting.js for text animations after fonts load
     const initSplitting = async () => {
       try {
+        // Wait for DOM and fonts
+        await new Promise(resolve => setTimeout(resolve, 600));
+        
         if (typeof window !== 'undefined' && (window as any).Splitting) {
           (window as any).Splitting();
         }
-        // Refresh ScrollTrigger after Splitting
+        
+        // Refresh ScrollTrigger after everything is ready
         ScrollTrigger.refresh();
       } catch (err) {
         console.log('Splitting init error:', err);
       }
     };
 
-    // Wait for DOM to be ready and images to load
-    const handleReady = () => {
-      setTimeout(() => {
-        initSplitting();
-      }, 200);
-    };
-
+    // Initialize when DOM is ready
     if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', handleReady);
+      document.addEventListener('DOMContentLoaded', () => {
+        initSplitting();
+      }, { once: true });
     } else {
-      handleReady();
+      initSplitting();
     }
 
-    // Also refresh when window loads
-    window.addEventListener('load', () => {
+    // Also refresh when fully loaded
+    const handleLoad = () => {
       setTimeout(() => {
         ScrollTrigger.refresh();
-      }, 500);
-    });
+      }, 300);
+    };
+    window.addEventListener('load', handleLoad);
 
     // Refresh on resize
     const handleResize = () => {
@@ -66,11 +71,7 @@ export default function Home() {
     window.addEventListener('resize', handleResize);
 
     return () => {
-      ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
-      if (document.readyState === 'loading') {
-        document.removeEventListener('DOMContentLoaded', handleReady);
-      }
-      window.removeEventListener('load', handleResize);
+      window.removeEventListener('load', handleLoad);
       window.removeEventListener('resize', handleResize);
     };
   }, []);

@@ -1,108 +1,82 @@
-'use client';
+import { motion } from "framer-motion";
+import { Hammer, Wrench, Clock, ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { useState } from "react";
 
-import { useEffect, useState } from 'react';
+const Maintenance = () => {
+    const [email, setEmail] = useState("");
+    const [isNotified, setIsNotified] = useState(false);
 
-export default function MaintenancePage() {
-  const [time, setTime] = useState<string>('');
-
-  useEffect(() => {
-    // Set current time on client side
-    const updateTime = () => {
-      const now = new Date();
-      setTime(now.toLocaleTimeString('en-US', { 
-        hour: '2-digit', 
-        minute: '2-digit', 
-        second: '2-digit',
-        hour12: true 
-      }));
+    const handleNotify = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (email) {
+            setIsNotified(true);
+            setTimeout(() => setIsNotified(false), 3000);
+            setEmail("");
+        }
     };
 
-    updateTime();
-    const interval = setInterval(updateTime, 1000);
-    return () => clearInterval(interval);
-  }, []);
+    return (
+        <div className="min-h-screen w-full flex flex-col items-center justify-center bg-background p-4 relative overflow-hidden">
+            {/* Background Decorative Elements */}
+            <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10 opacity-20 pointer-events-none">
+                <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-primary rounded-full blur-3xl" />
+                <div className="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-secondary rounded-full blur-3xl" />
+            </div>
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4">
-      {/* Background animated elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-20 right-10 w-72 h-72 bg-purple-500/10 rounded-full blur-3xl animate-pulse"></div>
-      </div>
-
-      {/* Main content */}
-      <div className="relative z-10 text-center max-w-2xl">
-        {/* Icon/Logo */}
-        <div className="mb-8 flex justify-center">
-          <div className="relative w-24 h-24">
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full opacity-25 blur-lg animate-pulse"></div>
-            <svg
-              className="w-24 h-24 text-blue-400 relative z-10"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8 }}
+                className="max-w-2xl w-full text-center space-y-8"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={1.5}
-                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-          </div>
+                <div className="relative inline-block">
+                    <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+                        className="text-primary"
+                    >
+                        <Wrench size={64} />
+                    </motion.div>
+                    <motion.div
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ delay: 0.2, type: "spring" }}
+                        className="absolute -bottom-2 -right-2 bg-background p-1.5 rounded-full border border-border shadow-lg"
+                    >
+                        <Hammer size={24} className="text-secondary-foreground" />
+                    </motion.div>
+                </div>
+
+                <div className="space-y-4">
+                    <h1 className="text-4xl md:text-6xl font-bold tracking-tighter">
+                        <span className="text-gradient">Under Maintenance</span>
+                    </h1>
+                    <p className="text-lg md:text-xl text-muted-foreground max-w-lg mx-auto leading-relaxed">
+                        We're currently making some improvements to our website.
+                        We'll be back shortly with a better experience.
+                    </p>
+                </div>
+
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground bg-secondary/50 px-4 py-2 rounded-full border border-border/50">
+                        <Clock size={16} />
+                        <span>Estimated return: 24 Hours</span>
+                    </div>
+                </div>
+            </motion.div>
+
+            <motion.footer
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 1 }}
+                className="absolute bottom-6 text-sm text-muted-foreground"
+            >
+                &copy; {new Date().getFullYear()} AMS. All rights reserved.
+            </motion.footer>
         </div>
+    );
+};
 
-        {/* Title */}
-        <h1 className="text-5xl md:text-6xl font-bold text-white mb-4 tracking-tight">
-          Under
-          <span className="block bg-gradient-to-r from-blue-400 to-purple-600 bg-clip-text text-transparent">
-            Maintenance
-          </span>
-        </h1>
-
-        {/* Subtitle */}
-        <p className="text-xl text-slate-300 mb-8 leading-relaxed">
-          We are currently performing scheduled maintenance to improve your experience.
-        </p>
-
-        {/* Message */}
-        <div className="bg-slate-800/50 backdrop-blur border border-slate-700 rounded-lg p-8 mb-8 space-y-4">
-          <p className="text-slate-300 text-lg">
-            We apologize for any inconvenience and appreciate your patience.
-          </p>
-          <div className="pt-4 border-t border-slate-700">
-            <p className="text-slate-400 text-sm mb-2">Expected to be back online within</p>
-            <p className="text-2xl font-semibold text-blue-400">2 hours</p>
-          </div>
-        </div>
-
-        {/* Current time */}
-        {time && (
-          <div className="mb-8 text-slate-400 text-sm">
-            <p>Current time: <span className="text-blue-400 font-mono font-semibold">{time}</span></p>
-          </div>
-        )}
-
-        {/* Contact info */}
-        <div className="space-y-4">
-          <p className="text-slate-400 text-sm">
-            For urgent inquiries, please contact us at
-          </p>
-          <a
-            href="mailto:support@example.com"
-            className="inline-block px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg font-semibold hover:shadow-lg hover:shadow-blue-500/50 transition-all duration-300 transform hover:scale-105"
-          >
-            support@example.com
-          </a>
-        </div>
-
-        {/* Footer text */}
-        <div className="mt-12 pt-8 border-t border-slate-700">
-          <p className="text-slate-500 text-xs">
-            We appreciate your understanding while we make improvements
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-}
+export default Maintenance;
